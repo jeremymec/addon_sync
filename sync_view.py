@@ -1,35 +1,27 @@
-from updater import push_addons_to_git
-from copy_addons import copy_addons
-from tkinter import messagebox, Tk, Menu
-from updater import push_addons_to_git
+from tkinter import messagebox, Tk, Menu, Label
 from tkinter.filedialog import askdirectory
-from notify import NotificationSender
-import threading
-import json
 
-class Interface:
+class SyncView:
 
-    def __init__(self):
+    def __init__(self, controller, model):
+        self.controller = controller
+        self.model = model
+        self.trayMenu = None
+        
         self.master = Tk()
         self.master.minsize(400, 300)
         self.master.title("Addon Sync")
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.trayMenu = None
-        sync_thread = threading.Thread(target=self.upstream_sync)
-        sync_thread.start()
-        self.notifcation_sender = NotificationSender()
+
+        initial_status_text = self.model.get_status()
+        self.status_label = Label(self.master, text = initial_status_text)
+        self.status_label.grid()
+
+    def start_tkinter(self):
         self.master.mainloop()
 
-    def read_config(self):
-        f = open('config.json', 'r') 
-        config_data = json.load(f)
-        self.path_to_wow = config_data['WowFolder']
-
-    def upstream_sync(self):
-        copy_addons(self.path_to_wow)
-        push_addons_to_git()
-        print("Hello I am here")
-        self.notifcation_sender.create_notification()
+    def update(self):
+        self.status_label.config(text=self.model.get_status())
     
     def on_closing(self):
         if not self.trayMenu:

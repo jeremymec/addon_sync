@@ -5,5 +5,5 @@ class NotificationSender:
     def __init__(self):
         self.toaster = ToastNotifier()
 
-    def create_notification(self):
-        self.toaster.show_toast("Sample Notification","Python is awesome!!!")
+    def create_notification(self, title, body):
+        self.toaster.show_toast(title, body, threaded=True)
