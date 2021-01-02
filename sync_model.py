@@ -2,6 +2,8 @@ from enum import Enum
 
 class Status(Enum):
     INIT = "Starting Up..."
+    CLONE = "CLONE Downloading your addons from the cloud"
+    SYNC_DOWN = "PULL Downloading your addons from the cloud"
     SYNC_UP = "Uploading your addons to the cloud"
     NORMAL = "Everything up to date!"
 

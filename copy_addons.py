@@ -6,8 +6,8 @@ def copy_addons(wow_path):
 
     source_addons = Path(wow_path).joinpath('Interface/AddOns')
     source_config = Path(wow_path).joinpath('WTF')
-    dst_addons = Path(__file__).parent.absolute().joinpath('wow-addons/AddOns')
-    dst_config = Path(__file__).parent.absolute().joinpath('wow-addons/WTF')
+    dst_addons = Path(__file__).parent.absolute().joinpath('addons/AddOns')
+    dst_config = Path(__file__).parent.absolute().joinpath('addons/WTF')
 
     if os.path.exists(dst_addons):
         shutil.rmtree(dst_addons)
