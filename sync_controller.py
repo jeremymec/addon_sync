@@ -1,8 +1,9 @@
-from copy_addons import copy_addons
 from remote import push_addons, clone_addons, addons_exist, update_addons
+from sync import Sync
 from notify import NotificationSender
 import json
 from sync_model import Status
+from pathlib import Path
 
 class SyncController:
 
@@ -10,6 +11,8 @@ class SyncController:
         self.model = model
         self.read_config()
         self.notifcation_sender = NotificationSender()
+        self.sync = Sync(Path(self.path_to_wow), self.repo_url)
+        self.sync.sync()
 
     def read_config(self):
         f = open('config.json', 'r') 
@@ -34,10 +37,5 @@ class SyncController:
         self.notifcation_sender.create_notification("Addon Sync", "Your addons have been uploaded to the cloud!")
         self.model.set_status(Status.NORMAL)
 
-    def sync(self):
-        if not addons_exist():
-            self.clone_repo()
-
-        self.update_from_cloud()
-
-        
+if __name__ == "__main__":
+    SyncController("")
