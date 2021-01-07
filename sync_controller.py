@@ -19,13 +19,34 @@ class SyncController:
         self.path_to_wow = config_data['WowFolder']
         self.repo_url = config_data['RepoURL']
 
+    def ack_conflict(self):
+        self.model.set_status(Status.CONFLICT_WAITING)
+
+    def resolve_conflict_with_local(self):
+        self.sync.force_sync_local()
+
+    def resolve_conflict_with_cloud(self):
+        self.model.set_status(Status.SYNCING.value)
+        result = self.sync.force_sync_cloud()
+        
+        self.handle_result(result['status'])
+
     def update_addons(self):
         self.model.set_status(Status.SYNCING.value)
         result = self.sync.sync()
-        if result['status'] == SyncStatus.UPLOADED_TO_CLOUD:
+
+        self.handle_result(result['status'])
+
+    def handle_result(self, sync_status):
+        if sync_status == SyncStatus.MERGE_CONFLICT:
+            self.model.set_status(Status.CONFLICT)
+            return
+
+        if sync_status == SyncStatus.UPLOADED_TO_CLOUD:
             self.notifcation_sender.create_notification("Addon Sync", "Your addons have been uploaded to the cloud")
-        elif result['status'] == SyncStatus.UPDATED_FROM_CLOUD:
+        elif sync_status == SyncStatus.UPDATED_FROM_CLOUD:
             self.notifcation_sender.create_notification("Addon Sync", "The latest version of your addons have been downloaded")
+
         self.model.set_last_checked(datetime.now())
         self.model.set_status(Status.NORMAL.value)
 

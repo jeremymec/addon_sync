@@ -1,4 +1,4 @@
-from git import Repo, InvalidGitRepositoryError, NoSuchPathError
+from git import Repo, InvalidGitRepositoryError, NoSuchPathError, GitCommandError
 from enum import Enum, auto
 
 class SyncStatus(Enum):
@@ -6,6 +6,7 @@ class SyncStatus(Enum):
     UPDATED_FROM_CLOUD = auto()
     UPLOADED_TO_CLOUD = auto()
     NO_CHANGE = auto()
+    MERGE_CONFLICT = auto()
 
 class Sync:
 
@@ -23,10 +24,23 @@ class Sync:
         addons_repo.git.checkout('-ft', 'origin/master')
         return addons_repo
 
+    def force_sync_cloud(self):
+        self.repo.git.reset('--hard')
+        self.repo.git.clean('-fd')
+        return self.sync()
+
+    def force_sync_local(self):
+        pass
+
     def sync(self):
         sync_info = {'status': SyncStatus.NO_CHANGE}
         remote = self.repo.remote()
-        pull_result = remote.pull()
+        try:
+            pull_result = remote.pull()
+        except GitCommandError:
+            sync_info['status'] = SyncStatus.MERGE_CONFLICT
+            return sync_info
+
         for fetch_info in pull_result:
             if fetch_info.flags == 128:
                 sync_info['status'] = SyncStatus.ERROR

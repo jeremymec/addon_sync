@@ -4,6 +4,8 @@ class Status(Enum):
     INIT = "Starting Up..."
     SYNCING = "Syncing your addons with the cloud..."
     NORMAL = "Everything up to date!"
+    CONFLICT = "There has been a merge conflict"
+    CONFLICT_WAITING = "Waiting for how to resolve the conflict"
 
 class SyncModel:
 
@@ -11,6 +13,7 @@ class SyncModel:
         self.observers = []
         self.status = Status.INIT.value
         self.last_checked = None
+        self.conflict = False
 
     def register_observer(self, observer):
         self.observers.append(observer)
@@ -32,6 +35,6 @@ class SyncModel:
     def set_last_checked(self, time):
         self.last_checked = time
         self.update()
-
+        
 if __name__ == "__main__":
     SyncModel()
