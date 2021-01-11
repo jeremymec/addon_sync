@@ -2,7 +2,7 @@ from sync import Sync, SyncStatus
 from datetime import datetime
 from notify import NotificationSender
 import json
-from sync_model import Status
+from sync_model import Status, SyncEventType
 from pathlib import Path
 
 class SyncController:
@@ -43,8 +43,10 @@ class SyncController:
             return
 
         if sync_status == SyncStatus.UPLOADED_TO_CLOUD:
+            self.model.add_sync_event(SyncEventType.UPLOAD, datetime.now())
             self.notifcation_sender.create_notification("Addon Sync", "Your addons have been uploaded to the cloud")
         elif sync_status == SyncStatus.UPDATED_FROM_CLOUD:
+            self.model.add_sync_event(SyncEventType.DOWNLOAD, datetime.now())
             self.notifcation_sender.create_notification("Addon Sync", "The latest version of your addons have been downloaded")
 
         self.model.set_last_checked(datetime.now())

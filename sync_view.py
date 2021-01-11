@@ -2,7 +2,7 @@ from tkinter import messagebox, Tk, Menu, Label, Toplevel, Button
 from tkinter.filedialog import askdirectory
 import timeago
 from datetime import datetime
-from sync_model import Status
+from sync_model import Status, SyncEventType
 
 class SyncView:
 
@@ -35,15 +35,27 @@ class SyncView:
 
         self.status_label.config(text=self.model.get_status())
 
-        last_checked_time = self.model.get_last_checked()
-        last_checked_time_text = ''
-        if last_checked_time == None:
-            last_checked_time_text = 'Addons have not been synced yet'
-        else:
-            human_last_checked_time = timeago.format(last_checked_time, datetime.now())
-            last_checked_time_text = 'Last checked ' + human_last_checked_time
+        sync_event = self.model.get_last_sync_event()
+        sync_status_text = ''
 
-        self.last_checked_label.config(text=last_checked_time_text)
+        if sync_event == None:
+            last_checked_time = self.model.get_last_checked()
+
+            if last_checked_time == None:
+                sync_status_text = 'Addons have not been synced yet'
+            else:
+                sync_time_text = timeago.format(last_checked_time, datetime.now())
+                sync_status_text = 'Last checked {sync_time}'.format(sync_time = sync_time_text)
+        else:
+            sync_time = sync_event.get_sync_time()
+            sync_time_text = timeago.format(sync_time, datetime.now())
+
+            sync_type = sync_event.get_sync_type()
+            sync_type_text = sync_type.value
+
+            sync_status_text = 'Last {sync_type} at {sync_time}'.format(sync_type = sync_type_text, sync_time = sync_time_text)
+
+        self.last_checked_label.config(text=sync_status_text)
     
     def open_merge_popup(self):
         popup_win = Toplevel()
