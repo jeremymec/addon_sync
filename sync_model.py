@@ -1,7 +1,7 @@
 from enum import Enum, auto
 class Status(Enum):
     INIT = "Starting Up..."
-    SYNCING = "Syncing your addons with the cloud..."
+    SYNCING = "Syncing addons..."
     NORMAL = "Everything up to date!"
     CONFLICT = "There has been a merge conflict"
     CONFLICT_WAITING = "Waiting for how to resolve the conflict"

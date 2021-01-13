@@ -1,8 +1,9 @@
-from tkinter import messagebox, Tk, Menu, Label, Toplevel, Button
+from tkinter import messagebox, Tk, Menu, Label, Toplevel, Button, Frame
 from tkinter.filedialog import askdirectory
 import timeago
 from datetime import datetime
 from sync_model import Status, SyncEventType
+from sync_view_style import ROW_PADDING, COLUMN_PADDING
 
 class SyncView:
 
@@ -12,15 +13,23 @@ class SyncView:
         self.trayMenu = None
         
         self.master = Tk()
-        self.master.minsize(400, 300)
+        # self.master.minsize(400, 300)
         self.master.title("Addon Sync")
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        self.status_label = Label(self.master, text = '')
-        self.status_label.grid(row=0)
+        self.master.grid_columnconfigure(0, minsize=COLUMN_PADDING)
+        self.master.grid_columnconfigure(2, minsize=COLUMN_PADDING)
+        self.master.grid_rowconfigure(0, minsize=ROW_PADDING)
+        self.master.grid_rowconfigure(4, minsize=ROW_PADDING)
+
+        self.status_label = Label(self.master, text = '', font=("Calibri", 18), width=25)
+        self.status_label.grid(row=1, column=1)
 
         self.last_checked_label = Label(self.master, text = '')
-        self.last_checked_label.grid(row=1)
+        self.last_checked_label.grid(row=2, column=1)
+
+        self.sync_button = Button(self.master, text='Sync', command=self.sync_button_callback)
+        self.sync_button.grid(row=3, column=1)
 
         self.update()
 
@@ -48,14 +57,18 @@ class SyncView:
                 sync_status_text = 'Last checked {sync_time}'.format(sync_time = sync_time_text)
         else:
             sync_time = sync_event.get_sync_time()
+
             sync_time_text = timeago.format(sync_time, datetime.now())
 
             sync_type = sync_event.get_sync_type()
             sync_type_text = sync_type.value
 
-            sync_status_text = 'Last {sync_type} at {sync_time}'.format(sync_type = sync_type_text, sync_time = sync_time_text)
+            sync_status_text = 'Last {sync_type} {sync_time}'.format(sync_type = sync_type_text, sync_time = sync_time_text)
 
         self.last_checked_label.config(text=sync_status_text)
+
+    def sync_button_callback(self):
+        self.controller.update_addons()
     
     def open_merge_popup(self):
         popup_win = Toplevel()
