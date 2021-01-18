@@ -1,56 +1,31 @@
-from git import Repo, InvalidGitRepositoryError, NoSuchPathError, GitCommandError
+from git_service import GitService
+from sync_status import SyncStatus
 from enum import Enum, auto
-
-class SyncStatus(Enum):
-    ERROR = auto()
-    UPDATED_FROM_CLOUD = auto()
-    UPLOADED_TO_CLOUD = auto()
-    NO_CHANGE = auto()
-    MERGE_CONFLICT = auto()
+import sys
 
 class Sync:
 
     def __init__(self, base_path, remote_path):
+        self.git_service = GitService(base_path, remote_path)
 
-        try:
-            self.repo = Repo(base_path)
-        except (InvalidGitRepositoryError, NoSuchPathError) as e:
-            self.repo = self.clone_repo(base_path, remote_path)
+    def sync(self, resolve_conflict_with_local = False, resolve_conflict_with_remote = False):
 
-    def clone_repo(self, path, remote):
-        addons_repo = Repo.init(path)
-        remote = addons_repo.create_remote('origin', url=remote)
-        remote.fetch()
-        addons_repo.git.checkout('-ft', 'origin/master')
-        return addons_repo
+        if resolve_conflict_with_local:
+            self.git_service.use_local()
+        elif resolve_conflict_with_remote:
+            self.git_service.use_remote()
 
-    def force_sync_cloud(self):
-        self.repo.git.reset('--hard')
-        self.repo.git.clean('-fd')
-        return self.sync()
+        local_changes = self.git_service.commit_local_changes()
+        print(local_changes)
 
-    def force_sync_local(self):
-        pass
-
-    def sync(self):
-        sync_info = {'status': SyncStatus.NO_CHANGE}
-        remote = self.repo.remote()
-        try:
-            pull_result = remote.pull()
-        except GitCommandError:
-            sync_info['status'] = SyncStatus.MERGE_CONFLICT
-            return sync_info
-
-        for fetch_info in pull_result:
-            if fetch_info.flags == 128:
-                sync_info['status'] = SyncStatus.ERROR
-            elif fetch_info.flags != 4:
-                sync_info['status'] = SyncStatus.UPDATED_FROM_CLOUD
-
-        self.repo.git.add('.')
-        if self.repo.index.diff("HEAD") != []:
-            sync_info['status'] = SyncStatus.UPLOADED_TO_CLOUD
-        self.repo.index.commit('Addon Update')
-        origin = self.repo.remote()
-        origin.push()
-        return sync_info
+        pull_result = self.git_service.pull_remote_changes()
+        
+        if (pull_result == SyncStatus.MERGE_CONFLICT):
+            return {'status': SyncStatus.MERGE_CONFLICT}
+    
+        self.git_service.push_changes_to_remote()
+        
+        if local_changes == SyncStatus.UPLOADED_TO_CLOUD:
+            return {'status': SyncStatus.UPLOADED_TO_CLOUD}
+        else:
+            return {'status': pull_result}

@@ -23,11 +23,14 @@ class SyncController:
         self.model.set_status(Status.CONFLICT_WAITING)
 
     def resolve_conflict_with_local(self):
-        self.sync.force_sync_local()
+        self.model.set_status(Status.SYNCING.value)
+        result = self.sync.sync(resolve_conflict_with_local=True)
+
+        self.handle_result(result['status'])
 
     def resolve_conflict_with_cloud(self):
         self.model.set_status(Status.SYNCING.value)
-        result = self.sync.force_sync_cloud()
+        result = self.sync.sync(resolve_conflict_with_remote=True)
         
         self.handle_result(result['status'])
 

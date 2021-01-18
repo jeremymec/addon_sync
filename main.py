@@ -29,7 +29,7 @@ model.register_observer(view)
 
 sync_thread = threading.Thread(target=sync_on_timer)
 sync_thread.start()
-view_update_thread = threading.Thread(target=update_view)
-view_update_thread.start()
+# view_update_thread = threading.Thread(target=update_view)
+# view_update_thread.start()
 
 view.start_tkinter()

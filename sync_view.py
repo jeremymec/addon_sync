@@ -4,6 +4,7 @@ import timeago
 from datetime import datetime
 from sync_model import Status, SyncEventType
 from sync_view_style import ROW_PADDING, COLUMN_PADDING
+from sync_status import SyncStatus
 
 class SyncView:
 
@@ -69,15 +70,27 @@ class SyncView:
 
     def sync_button_callback(self):
         self.controller.update_addons()
+
+    def use_local_button_callback(self):
+        print("Reached here 1")
+        self.controller.resolve_conflict_with_local()
+        print("Reached here 3")
+        self.popup_win.destroy()
+    
+    def use_cloud_button_callback(self):
+        print("Reached here 2")
+        self.controller.resolve_conflict_with_cloud()
+        print("Reached here 4")
+        self.popup_win.destroy()
     
     def open_merge_popup(self):
-        popup_win = Toplevel()
-        popup_win.title = "Conflict"
-        popup_win.minsize(250,100)
+        self.popup_win = Toplevel()
+        self.popup_win.title = "Conflict"
+        self.popup_win.minsize(250,100)
         message = "Merge conflict yo"
-        Label(popup_win, text=message).grid(row=0, columnspan=2)
-        Button(popup_win, text='Use Local', command=self.controller.resolve_conflict_with_local).grid(row=1, column=0)
-        Button(popup_win, text='Use Cloud', command=self.controller.resolve_conflict_with_cloud).grid(row=1, column=1)
+        Label(self.popup_win, text=message).grid(row=0, columnspan=2)
+        Button(self.popup_win, text='Use Local', command=self.use_local_button_callback).grid(row=1, column=0)
+        Button(self.popup_win, text='Use Cloud', command=self.use_cloud_button_callback).grid(row=1, column=1)
     
     def on_closing(self):
         if not self.trayMenu:
