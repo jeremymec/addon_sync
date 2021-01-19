@@ -7,7 +7,7 @@ from sync_controller import SyncController
 def sync_on_timer():
     while(True):
         controller.update_addons()
-        time.sleep(60)
+        time.sleep(30)
 
 def update_view():
     while(True):
@@ -29,7 +29,7 @@ model.register_observer(view)
 
 sync_thread = threading.Thread(target=sync_on_timer)
 sync_thread.start()
-# view_update_thread = threading.Thread(target=update_view)
-# view_update_thread.start()
+view_update_thread = threading.Thread(target=update_view)
+view_update_thread.start()
 
 view.start_tkinter()

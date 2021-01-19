@@ -8,12 +8,25 @@ class Sync:
     def __init__(self, base_path, remote_path):
         self.git_service = GitService(base_path, remote_path)
 
-    def sync(self, resolve_conflict_with_local = False, resolve_conflict_with_remote = False):
+    def force_local_sync(self):
+        self.git_service.use_local()
 
-        if resolve_conflict_with_local:
-            self.git_service.use_local()
-        elif resolve_conflict_with_remote:
-            self.git_service.use_remote()
+        self.git_service.commit_local_changes()
+
+        self.git_service.push_changes_to_remote()
+
+        return {'status': SyncStatus.UPLOADED_TO_CLOUD}
+    
+    def force_remote_sync(self):
+        self.git_service.use_remote()
+
+        self.git_service.commit_local_changes()
+
+        self.git_service.push_changes_to_remote()
+
+        return {'status': SyncStatus.UPLOADED_TO_CLOUD}
+
+    def sync(self):
 
         local_changes = self.git_service.commit_local_changes()
         print(local_changes)

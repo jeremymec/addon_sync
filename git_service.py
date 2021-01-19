@@ -24,20 +24,24 @@ class GitService:
 
     def commit_local_changes(self):
         self.repo.git.add('.')
-        if self.repo.index.diff('HEAD') != []:
-            self.repo.index.commit('Addon Update')
+        
+        try:
+            self.repo.git.commit('-m', 'Addon update')
             return SyncStatus.UPLOADED_TO_CLOUD
-
-        return SyncStatus.NO_CHANGE
+        except GitCommandError:
+            return SyncStatus.NO_CHANGE
 
     def pull_remote_changes(self):
         remote = self.repo.remote()
+
+        fetch_result = remote.fetch()
+
         try:
-            pull_result = remote.pull()
+            self.repo.git.merge('origin/master')
         except GitCommandError:
             return SyncStatus.MERGE_CONFLICT
 
-        for fetch_info in pull_result:
+        for fetch_info in fetch_result:
             if fetch_info.flags == 128:
                 return SyncStatus.ERROR
             elif fetch_info.flags != 4:
@@ -46,6 +50,8 @@ class GitService:
         return SyncStatus.NO_CHANGE
 
     def push_changes_to_remote(self):
-        origin = self.repo.remote()
-        origin.push()
+        origin = self.repo.remote('origin')
+        print(origin)
+        result = origin.push()
+        print(result)
     

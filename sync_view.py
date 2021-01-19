@@ -39,6 +39,8 @@ class SyncView:
         self.master.mainloop()
 
     def update(self):
+        self.open_merge_popup()
+
         if self.model.get_status() == Status.CONFLICT:
             self.controller.ack_conflict()
             self.open_merge_popup()
@@ -72,25 +74,21 @@ class SyncView:
         self.controller.update_addons()
 
     def use_local_button_callback(self):
-        print("Reached here 1")
         self.controller.resolve_conflict_with_local()
-        print("Reached here 3")
         self.popup_win.destroy()
     
     def use_cloud_button_callback(self):
-        print("Reached here 2")
         self.controller.resolve_conflict_with_cloud()
-        print("Reached here 4")
         self.popup_win.destroy()
     
     def open_merge_popup(self):
         self.popup_win = Toplevel()
         self.popup_win.title = "Conflict"
         self.popup_win.minsize(250,100)
-        message = "Merge conflict yo"
-        Label(self.popup_win, text=message).grid(row=0, columnspan=2)
-        Button(self.popup_win, text='Use Local', command=self.use_local_button_callback).grid(row=1, column=0)
-        Button(self.popup_win, text='Use Cloud', command=self.use_cloud_button_callback).grid(row=1, column=1)
+        message = "A conflict has been detected between the local files and the files stored remotely.\nPlease choose whether to use the local changes or the remote ones."
+        Label(self.popup_win, text=message).grid(row=0, columnspan=2, pady=10)
+        Button(self.popup_win, text='Use Local', command=self.use_local_button_callback).grid(row=1, column=0, padx=20, pady=10)
+        Button(self.popup_win, text='Use Cloud', command=self.use_cloud_button_callback).grid(row=1, column=1, padx=20, pady=10)
     
     def on_closing(self):
         if not self.trayMenu:

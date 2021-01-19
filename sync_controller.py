@@ -24,17 +24,21 @@ class SyncController:
 
     def resolve_conflict_with_local(self):
         self.model.set_status(Status.SYNCING.value)
-        result = self.sync.sync(resolve_conflict_with_local=True)
+        result = self.sync.force_local_sync()
 
         self.handle_result(result['status'])
 
     def resolve_conflict_with_cloud(self):
         self.model.set_status(Status.SYNCING.value)
-        result = self.sync.sync(resolve_conflict_with_remote=True)
+        result = self.sync.force_remote_sync()
         
         self.handle_result(result['status'])
 
     def update_addons(self):
+        if self.model.get_status() == Status.CONFLICT_WAITING:
+            print('Not updating due to current merge conflict')
+            return
+
         self.model.set_status(Status.SYNCING.value)
         result = self.sync.sync()
 
