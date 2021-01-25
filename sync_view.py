@@ -39,8 +39,6 @@ class SyncView:
         self.master.mainloop()
 
     def update(self):
-        self.open_merge_popup()
-
         if self.model.get_status() == Status.CONFLICT:
             self.controller.ack_conflict()
             self.open_merge_popup()

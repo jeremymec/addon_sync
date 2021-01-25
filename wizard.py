@@ -48,6 +48,9 @@ class SetupWizard:
             self.repo_next_button.config(state="normal")
         else:
             self.repo_next_button.config(state="disabled")        
+
+    def create_repo_callback(self):
+        pass
     
     def location_screen(self):
         self.location_frame = Frame(self.master)
@@ -72,8 +75,8 @@ class SetupWizard:
     def repo_screen(self):
         self.repo_frame = Frame(self.master)
 
-        self.repo_label = Label(self.repo_frame, text="Please type in the address of your github repo.")
-        self.repo_label.grid(row=0, pady=10)
+        repo_label = Label(self.repo_frame, text="Please type in the address of your github repo.")
+        repo_label.grid(row=0, pady=10)
 
         self.repo_string = StringVar()
         self.repo_string.trace_add("write", self.repo_callback)
@@ -88,6 +91,29 @@ class SetupWizard:
         self.repo_next_button.grid(row=2, column=1, pady=10)
 
         self.repo_frame.grid()
+
+    def create_repo_screen(self):
+        self.create_repo_frame = Frame(self.master)
+
+        create_repo_label = Label(self.create_repo_frame, text="In order for this program to work you will need to set up a github repository.\nThis is free and should only take a few minutes.")
+        create_repo_label.grid(row=0, pady=10)
+
+        repo_instructions_label = Label(self.create_repo_frame, text="1. Go to github.com and create an account, or if you already have one login.\n2. Go to github.com/new and create a new repo with any name you want.\n Do not check any of the boxes to initalize the repo.\n3. Copy and paste the repo URL into the box below.")
+        repo_instructions_label.grid(row=1, pady=10)
+
+        self.repo_string = StringVar()
+        self.repo_string.trace_add("write", self.repo_callback)
+
+        self.repo_textbox = Entry(self.repo_frame, width=65, textvariable = self.repo_string)
+        self.repo_textbox.grid(row=1, padx=10)
+
+        self.repo_next_button = Button(self.repo_frame, text="Next", command = self.repo_next_callbak, state="disabled")
+        self.repo_next_button.grid(row=2, pady=10)
+
+        self.repo_next_button = Button(self.repo_frame, text="Back", command = self.create_repo_callback)
+        self.repo_next_button.grid(row=2, column=1, pady=10)
+
+        self.create_repo_frame.grid()
 
 
 if __name__ == "__main__":
