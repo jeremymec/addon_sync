@@ -1,0 +1,3 @@
+Automate making of gitignore
+check behaviour on cloning an empty repo (shoiuldn't raise a conflict)
+make settings window
