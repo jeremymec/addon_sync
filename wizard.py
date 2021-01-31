@@ -1,10 +1,11 @@
 from tkinter import filedialog, Tk, END, Label, StringVar, Button, Entry, W, E, Frame, NORMAL, DISABLED
 import json
+import os
 
 class SetupWizard:
 
     def __init__(self):
-        self.config_data = {}
+        self.config_data = {'LastAction': 'NONE', 'ActionTime': 'NONE'}
         self.master = Tk()
         self.master.minsize(400, 150)
         self.master.title("Addon Sync Setup")
@@ -25,8 +26,19 @@ class SetupWizard:
     def location_next_callback(self):
         self.config_data['WowFolder'] = self.path_to_wow
 
-        self.active_frame.destroy()
-        self.repo_screen()
+        # Check for lockfile
+        path_to_lockfile = os.path.join(self.path_to_wow, 'sync_lock.json')
+        try:
+            with open(path_to_lockfile) as f:
+                lockfile_data = json.load(f)
+                self.config_data['RepoURL'] = lockfile_data['Remote']
+            f.close()
+            self.write_config_data()
+            self.master.destroy()
+
+        except IOError:
+            self.active_frame.destroy()
+            self.repo_screen()
 
     def create_repo_callback(self):
         self.active_frame.destroy()

@@ -1,9 +1,13 @@
 from git import Repo, InvalidGitRepositoryError, NoSuchPathError, GitCommandError
 from sync_status import SyncStatus
+from shutil import copy2
+from pathlib import Path
+import os
 
 class GitService:
 
     def __init__(self, path_to_repo, remote_url):
+        self.repo_path = path_to_repo
         try:
             self.repo = Repo(path_to_repo)
         except (InvalidGitRepositoryError, NoSuchPathError):
@@ -21,6 +25,12 @@ class GitService:
         remote.fetch()
         addons_repo.git.checkout('-ft', 'origin/master')
         return addons_repo
+
+    def init_repo(self):
+        # Create the gitignore
+        current_path = Path().absolute()
+        gitignore_file_path = os.path.join(current_path, 'files', '.gitignore')
+        copy2(gitignore_file_path, self.repo_path)
 
     def commit_local_changes(self):
         self.repo.git.add('.')

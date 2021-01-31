@@ -1,3 +1,5 @@
-Automate making of gitignore
-check behaviour on cloning an empty repo (shoiuldn't raise a conflict)
+[IN-PROGESS] Automate making of gitignore
+
+check behaviour on cloning an empty repo (shouldn't raise a conflict)
 make settings window
+make pressing buttons dispatch a thread so as not to freeze gui                

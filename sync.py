@@ -2,11 +2,32 @@ from git_service import GitService
 from sync_status import SyncStatus
 from enum import Enum, auto
 import sys
+import os
+import json
 
 class Sync:
 
     def __init__(self, base_path, remote_path):
-        self.git_service = GitService(base_path, remote_path)
+        self.base_path = base_path
+        self.remote_path = remote_path
+
+        # Attempt to read sync_lock
+        path_to_lockfile = os.path.join(self.base_path, 'sync_lock.json')
+        try:
+            with open(path_to_lockfile) as f:
+                pass
+        except IOError:
+            self.create_lockfile(path_to_lockfile)
+
+        self.git_service = GitService(self.base_path, self.remote_path)
+
+    def create_lockfile(self, path):
+        initial_lockfile_contents = {'Remote': self.remote_path}
+        with open(path, 'w+') as f:
+            f.write(json.dumps(initial_lockfile_contents))
+        
+        f.close()
+        
 
     def force_local_sync(self):
         self.git_service.use_local()
