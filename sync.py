@@ -27,7 +27,6 @@ class Sync:
             f.write(json.dumps(initial_lockfile_contents))
         
         f.close()
-        
 
     def force_local_sync(self):
         self.git_service.use_local()

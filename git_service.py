@@ -23,11 +23,19 @@ class GitService:
         addons_repo = Repo.init(path)
         remote = addons_repo.create_remote('origin', url=remote)
         remote.fetch()
-        addons_repo.git.checkout('-ft', 'origin/master')
+        
+        # Check if the repo has a gitignore and create one if it does not
+        if not os.path.exists(os.path.join(self.repo_path, '.gitignore')):
+            self.create_gitignore()
+
+        try:
+            addons_repo.git.checkout('-ft', 'origin/master')
+        except GitCommandError:
+            # This needs to push somehow
+
         return addons_repo
 
-    def init_repo(self):
-        # Create the gitignore
+    def create_gitignore(self):
         current_path = Path().absolute()
         gitignore_file_path = os.path.join(current_path, 'files', '.gitignore')
         copy2(gitignore_file_path, self.repo_path)
