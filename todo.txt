@@ -1,4 +1,4 @@
-[IN-PROGESS] Automate making of gitignore
+[DONE] Automate making of gitignore
 
 check behaviour on cloning an empty repo (shouldn't raise a conflict)
 make settings window

@@ -8,10 +8,13 @@ class GitService:
 
     def __init__(self, path_to_repo, remote_url):
         self.repo_path = path_to_repo
+        self.remote_url = remote_url
+
+    def init_repo(self):
         try:
-            self.repo = Repo(path_to_repo)
+            self.repo = Repo(self.repo_path)
         except (InvalidGitRepositoryError, NoSuchPathError):
-            self.repo = self.clone_repo(path_to_repo, remote_url)
+            self.repo = self.clone_repo(self.repo_path, self.remote_url)
 
     def use_local(self):
         self.repo.git.checkout('--ours', '.')
@@ -31,7 +34,9 @@ class GitService:
         try:
             addons_repo.git.checkout('-ft', 'origin/master')
         except GitCommandError:
-            # This needs to push somehow
+            addons_repo.git.add('.')
+            addons_repo.git.commit('-m', 'Initial Addon Commit')
+            addons_repo.git.push('--set-upstream', remote, addons_repo.head)
 
         return addons_repo
 
