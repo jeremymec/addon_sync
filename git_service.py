@@ -2,19 +2,48 @@ from git import Repo, InvalidGitRepositoryError, NoSuchPathError, GitCommandErro
 from sync_status import SyncStatus
 from shutil import copy2
 from pathlib import Path
+from enum import Enum, auto
 import os
 
-class GitService:
+class InitRepoResult(Enum):
+    REPO_EXISTS = auto()
+    CLONE_REPO = auto()
+    UPLOAD_TO_BLANK_REPO = auto()
 
-    def __init__(self, path_to_repo, remote_url):
+class GitService:
+    def __init__(self, repo, path_to_repo, remote_url):
+        self.repo = repo
         self.repo_path = path_to_repo
         self.remote_url = remote_url
 
-    def init_repo(self):
+    @staticmethod
+    def create_service(path_to_repo, remote_url):
+        result = None
+        repo = None
+
         try:
-            self.repo = Repo(self.repo_path)
+            repo = Repo(path_to_repo)
+            result = InitRepoResult.REPO_EXISTS
         except (InvalidGitRepositoryError, NoSuchPathError):
-            self.repo = self.clone_repo(self.repo_path, self.remote_url)
+            addons_repo = Repo.init(path_to_repo)
+            remote = addons_repo.create_remote('origin', url=remote_url)
+            remote.fetch()
+            
+            # Check if the repo has a gitignore and create one if it does not
+            if not os.path.exists(os.path.join(path_to_repo, '.gitignore')):
+                GitService.create_gitignore(path_to_repo)
+
+            try:
+                addons_repo.git.checkout('-ft', 'origin/master')
+                result = InitRepoResult.CLONE_REPO
+            except GitCommandError:
+                addons_repo.git.add('.')
+                addons_repo.git.commit('-m', 'Initial Addon Commit')
+                addons_repo.git.push('--set-upstream', remote, addons_repo.head)
+                result = InitRepoResult.UPLOAD_TO_BLANK_REPO
+
+        service = GitService(repo, path_to_repo, remote_url)
+        return {'service': service, 'result': result}
 
     def use_local(self):
         self.repo.git.checkout('--ours', '.')
@@ -22,28 +51,11 @@ class GitService:
     def use_remote(self):
         self.repo.git.checkout('--theirs', '.')
 
-    def clone_repo(self, path, remote):
-        addons_repo = Repo.init(path)
-        remote = addons_repo.create_remote('origin', url=remote)
-        remote.fetch()
-        
-        # Check if the repo has a gitignore and create one if it does not
-        if not os.path.exists(os.path.join(self.repo_path, '.gitignore')):
-            self.create_gitignore()
-
-        try:
-            addons_repo.git.checkout('-ft', 'origin/master')
-        except GitCommandError:
-            addons_repo.git.add('.')
-            addons_repo.git.commit('-m', 'Initial Addon Commit')
-            addons_repo.git.push('--set-upstream', remote, addons_repo.head)
-
-        return addons_repo
-
-    def create_gitignore(self):
+    @staticmethod
+    def create_gitignore(repo_path):
         current_path = Path().absolute()
         gitignore_file_path = os.path.join(current_path, 'files', '.gitignore')
-        copy2(gitignore_file_path, self.repo_path)
+        copy2(gitignore_file_path, repo_path)
 
     def commit_local_changes(self):
         self.repo.git.add('.')

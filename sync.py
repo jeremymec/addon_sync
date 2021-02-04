@@ -1,28 +1,46 @@
-from git_service import GitService
+from git_service import GitService, InitRepoResult
 from sync_status import SyncStatus
 from enum import Enum, auto
 import sys
 import os
 import json
 
+class SyncInitStatus(Enum):
+    DOWNLOADING_DATA = auto()
+    UPLOADING_DATA = auto()
+
 class Sync:
+    def __init__(self, git_service, base_path, remote_path):
+        self.git_service = git_service
 
-    def __init__(self, base_path, remote_path):
-        self.base_path = base_path
-        self.remote_path = remote_path
-
-        # Attempt to read sync_lock
-        path_to_lockfile = os.path.join(self.base_path, 'sync_lock.json')
+    @staticmethod
+    def create_sync(base_path, remote_path):
+        
+        path_to_lockfile = os.path.join(base_path, 'sync_lock.json')
         try:
             with open(path_to_lockfile) as f:
                 pass
         except IOError:
-            self.create_lockfile(path_to_lockfile)
+            Sync.create_lockfile(path_to_lockfile, remote_path)
 
-        self.git_service = GitService(self.base_path, self.remote_path)
+        service_create_result = GitService.create_service(base_path, remote_path)
 
-    def create_lockfile(self, path):
-        initial_lockfile_contents = {'Remote': self.remote_path}
+        git_service = service_create_result['service']
+
+        result = service_create_result['result']
+        init_status = None
+
+        if result == InitRepoResult.UPLOAD_TO_BLANK_REPO:
+            init_status = SyncInitStatus.UPLOADING_DATA
+        elif result == InitRepoResult.CLONE_REPO:
+            init_status = SyncInitStatus.DOWNLOADING_DATA
+
+        sync = Sync(git_service, base_path, remote_path)
+        return {'sync': sync, 'init_status': init_status}
+
+    @staticmethod
+    def create_lockfile(path, remote_path):
+        initial_lockfile_contents = {'Remote': remote_path}
         with open(path, 'w+') as f:
             f.write(json.dumps(initial_lockfile_contents))
         

@@ -1,4 +1,4 @@
-from sync import Sync, SyncStatus
+from sync import Sync, SyncStatus, SyncInitStatus
 from datetime import datetime
 from notify import NotificationSender
 import json
@@ -11,7 +11,19 @@ class SyncController:
         self.model = model
         self.read_config()
         self.notifcation_sender = NotificationSender()
-        self.sync = Sync(Path(self.path_to_wow), self.repo_url)
+
+    def init_sync(self):
+        self.model.set_status(SyncStatus.INITIALIZING)
+        sync_create_result = Sync.create_sync(Path(self.path_to_wow), self.repo_url)
+        result = sync_create_result['result']
+        self.sync = sync_create_result['sync']
+
+        if (result == SyncInitStatus.DOWNLOADING_DATA):
+            self.model.set_status(SyncStatus.UPDATED_FROM_CLOUD)
+        elif (result == SyncInitStatus.UPLOADING_DATA):
+            self.model.set_status(SyncStatus.UPLOADED_TO_CLOUD)
+        else:
+            self.model.set_status(SyncStatus.NO_CHANGE)
 
     def update_config_with_sync(self, action_type, action_time):
         f = open('config.json', 'r')
