@@ -15,7 +15,7 @@ class SyncController:
     def init_sync(self):
         self.model.set_status(SyncStatus.INITIALIZING)
         sync_create_result = Sync.create_sync(Path(self.path_to_wow), self.repo_url)
-        result = sync_create_result['result']
+        result = sync_create_result['init_status']
         self.sync = sync_create_result['sync']
 
         if (result == SyncInitStatus.DOWNLOADING_DATA):
