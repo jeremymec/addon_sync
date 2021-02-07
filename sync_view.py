@@ -18,6 +18,7 @@ class SyncView:
         # self.master.minsize(400, 300)
         self.master.title("Addon Sync")
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.master.iconbitmap('sync_icon.ico')
 
         self.master.grid_columnconfigure(0, minsize=COLUMN_PADDING)
         self.master.grid_columnconfigure(2, minsize=COLUMN_PADDING)
@@ -98,7 +99,7 @@ class SyncView:
             self.master.withdraw()
 
             self.master.tk.call('package', 'require', 'Winico')
-            icon = self.master.tk.call('winico', 'createfrom', 'smiley.ico')
+            icon = self.master.tk.call('winico', 'createfrom', 'sync_icon.ico')
             self.master.tk.call('winico', 'taskbar', 'add', icon,
                         '-callback', (self.master.register(self.menu_func), '%m', '%x', '%y'),
                         '-pos', 0,

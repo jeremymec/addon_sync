@@ -26,7 +26,7 @@ def update_view():
 try:
     f = open('config.json', 'r') 
     config_data = json.load(f)
-    if config_data["ValidConfig"] != "True": raise Exception
+    # if config_data["ValidConfig"] != "True": raise Exception
 except:
     SetupWizard() 
 
