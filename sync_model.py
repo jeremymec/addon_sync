@@ -1,4 +1,6 @@
-from enum import Enum, auto
+from enum import Enum
+
+
 class Status(Enum):
     INIT = "Starting Up..."
     SYNCING = "Syncing addons..."
@@ -6,16 +8,17 @@ class Status(Enum):
     CONFLICT = "There has been a merge conflict"
     CONFLICT_WAITING = "Waiting for how to resolve the conflict"
 
+
 class SyncEventType(Enum):
     UPLOAD = "uploaded"
     DOWNLOAD = "downloaded"
 
-class SyncEvent():
 
+class SyncEvent:
     def __init__(self, sync_type, sync_time):
         self.sync_type = sync_type
         self.sync_time = sync_time
-    
+
     def get_sync_type(self):
         return self.sync_type
 
@@ -24,7 +27,6 @@ class SyncEvent():
 
 
 class SyncModel:
-
     def __init__(self):
         self.observers = []
         self.status = Status.INIT.value
@@ -34,14 +36,14 @@ class SyncModel:
 
     def register_observer(self, observer):
         self.observers.append(observer)
-    
+
     def update(self):
         for observer in self.observers:
             observer.update()
-    
+
     def get_status(self):
         return self.status
-    
+
     def set_status(self, status):
         self.status = status
         self.update()
@@ -56,7 +58,7 @@ class SyncModel:
     def add_sync_event(self, sync_type, sync_time):
         self.sync_events.append(SyncEvent(sync_type, sync_time))
         self.update()
-    
+
     def get_last_sync_event(self):
         try:
             return self.sync_events[-1]
@@ -66,7 +68,6 @@ class SyncModel:
     def get_sync_events(self):
         return self.sync_events.copy()
 
-    
-        
+
 if __name__ == "__main__":
     SyncModel()

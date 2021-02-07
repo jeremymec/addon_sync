@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class SyncStatus(Enum):
     INITIALIZING = auto()
     ERROR = auto()

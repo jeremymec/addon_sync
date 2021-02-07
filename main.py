@@ -1,15 +1,20 @@
-import json, time, threading
-from wizard import SetupWizard
+import json
+import threading
+import time
+
+from sync_controller import SyncController
 from sync_model import SyncModel
 from sync_view import SyncView
-from sync_controller import SyncController
+from wizard import SetupWizard
 
 is_ready = False
+
 
 def initial_sync():
     global is_ready
     controller.init_sync()
     is_ready = True
+
 
 def sync():
     if is_ready:
@@ -17,18 +22,20 @@ def sync():
     time.sleep(30)
     sync()
 
+
 def update_view():
     if is_ready:
         view.update()
     time.sleep(10)
     update_view()
 
+
 try:
-    f = open('config.json', 'r') 
+    f = open("config.json", "r")
     config_data = json.load(f)
     # if config_data["ValidConfig"] != "True": raise Exception
 except:
-    SetupWizard() 
+    SetupWizard()
 
 model = SyncModel()
 controller = SyncController(model)

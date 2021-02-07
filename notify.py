@@ -1,7 +1,7 @@
 from win10toast import ToastNotifier
 
-class NotificationSender:
 
+class NotificationSender:
     def __init__(self):
         self.toaster = ToastNotifier()
 
