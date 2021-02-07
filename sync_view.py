@@ -5,6 +5,7 @@ from datetime import datetime
 from sync_model import Status, SyncEventType
 from sync_view_style import ROW_PADDING, COLUMN_PADDING
 from sync_status import SyncStatus
+import threading
 
 class SyncView:
 
@@ -58,8 +59,10 @@ class SyncView:
                 sync_status_text = 'Last checked {sync_time}'.format(sync_time = sync_time_text)
         else:
             sync_time = sync_event.get_sync_time()
+            print(sync_time)
 
             sync_time_text = timeago.format(sync_time, datetime.now())
+            print(sync_time_text)
 
             sync_type = sync_event.get_sync_type()
             sync_type_text = sync_type.value
@@ -69,7 +72,8 @@ class SyncView:
         self.last_checked_label.config(text=sync_status_text)
 
     def sync_button_callback(self):
-        self.controller.update_addons()
+        sync_thread = threading.Thread(target=self.controller.update_addons)
+        sync_thread.start()
 
     def use_local_button_callback(self):
         self.controller.resolve_conflict_with_local()

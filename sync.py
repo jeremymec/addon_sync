@@ -5,10 +5,6 @@ import sys
 import os
 import json
 
-class SyncInitStatus(Enum):
-    DOWNLOADING_DATA = auto()
-    UPLOADING_DATA = auto()
-
 class Sync:
     def __init__(self, git_service, base_path, remote_path):
         self.git_service = git_service
@@ -16,35 +12,35 @@ class Sync:
     @staticmethod
     def create_sync(base_path, remote_path):
         
-        path_to_lockfile = os.path.join(base_path, 'sync_lock.json')
-        try:
-            with open(path_to_lockfile) as f:
-                pass
-        except IOError:
-            Sync.create_lockfile(path_to_lockfile, remote_path)
+        # path_to_lockfile = os.path.join(base_path, 'sync_lock.json')
+        # try:
+        #     with open(path_to_lockfile) as f:
+        #         pass
+        # except IOError:
+        #     Sync.create_lockfile(path_to_lockfile, remote_path)
 
         service_create_result = GitService.create_service(base_path, remote_path)
 
         git_service = service_create_result['service']
 
         result = service_create_result['result']
-        init_status = None
+        status = None
 
         if result == InitRepoResult.UPLOAD_TO_BLANK_REPO:
-            init_status = SyncInitStatus.UPLOADING_DATA
+            status = SyncStatus.UPLOADED_TO_CLOUD
         elif result == InitRepoResult.CLONE_REPO:
-            init_status = SyncInitStatus.DOWNLOADING_DATA
+            status = SyncStatus.UPDATED_FROM_CLOUD
 
         sync = Sync(git_service, base_path, remote_path)
-        return {'sync': sync, 'init_status': init_status}
+        return {'sync': sync, 'status': status}
 
-    @staticmethod
-    def create_lockfile(path, remote_path):
-        initial_lockfile_contents = {'Remote': remote_path}
-        with open(path, 'w+') as f:
-            f.write(json.dumps(initial_lockfile_contents))
+    # @staticmethod
+    # def create_lockfile(path, remote_path):
+    #     initial_lockfile_contents = {'Remote': remote_path}
+    #     with open(path, 'w+') as f:
+    #         f.write(json.dumps(initial_lockfile_contents))
         
-        f.close()
+    #     f.close()
 
     def force_local_sync(self):
         self.git_service.use_local()

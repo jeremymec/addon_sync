@@ -1,4 +1,4 @@
-from sync import Sync, SyncStatus, SyncInitStatus
+from sync import Sync, SyncStatus
 from datetime import datetime
 from notify import NotificationSender
 import json
@@ -13,17 +13,12 @@ class SyncController:
         self.notifcation_sender = NotificationSender()
 
     def init_sync(self):
-        self.model.set_status(SyncStatus.INITIALIZING)
+        self.model.set_status(Status.INIT.value)
         sync_create_result = Sync.create_sync(Path(self.path_to_wow), self.repo_url)
-        result = sync_create_result['init_status']
+        result = sync_create_result['status']
         self.sync = sync_create_result['sync']
 
-        if (result == SyncInitStatus.DOWNLOADING_DATA):
-            self.model.set_status(SyncStatus.UPDATED_FROM_CLOUD)
-        elif (result == SyncInitStatus.UPLOADING_DATA):
-            self.model.set_status(SyncStatus.UPLOADED_TO_CLOUD)
-        else:
-            self.model.set_status(SyncStatus.NO_CHANGE)
+        self.handle_result(result)
 
     def update_config_with_sync(self, action_type, action_time):
         f = open('config.json', 'r')
@@ -78,8 +73,12 @@ class SyncController:
         self.handle_result(result['status'])
 
     def handle_result(self, sync_status):
+        if sync_status == SyncStatus.INITIALIZING:
+            self.model.set_status(Status.INIT.value)
+            return
+
         if sync_status == SyncStatus.MERGE_CONFLICT:
-            self.model.set_status(Status.CONFLICT)
+            self.model.set_status(Status.CONFLICT.value)
             return
 
         if sync_status == SyncStatus.UPLOADED_TO_CLOUD:

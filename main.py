@@ -11,17 +11,17 @@ def initial_sync():
     controller.init_sync()
     is_ready = True
 
-def sync_on_timer():
-    global is_ready
-    while(is_ready):
+def sync():
+    if is_ready:
         controller.update_addons()
-        time.sleep(30)
+    time.sleep(30)
+    sync()
 
 def update_view():
-    global is_ready
-    while(is_ready):
-        time.sleep(10)
+    if is_ready:
         view.update()
+    time.sleep(10)
+    update_view()
 
 try:
     f = open('config.json', 'r') 
@@ -38,7 +38,7 @@ model.register_observer(view)
 
 initial_sync_thread = threading.Thread(target=initial_sync)
 initial_sync_thread.start()
-sync_thread = threading.Thread(target=sync_on_timer)
+sync_thread = threading.Thread(target=sync)
 sync_thread.start()
 view_update_thread = threading.Thread(target=update_view)
 view_update_thread.start()
