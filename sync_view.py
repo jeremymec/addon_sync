@@ -16,7 +16,7 @@ class SyncView:
         self.trayMenu = None
 
         self.master = Tk()
-        # self.master.minsize(400, 300)
+        self.master.minsize(400, 300)
         self.master.title("Addon Sync")
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.master.iconbitmap("sync_icon.ico")
