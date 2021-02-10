@@ -1,0 +1,35 @@
+*
+
+# Include Addons
+!Interface/
+!Interface/AddOns
+!Interface/AddOns/*
+
+# Include General Settings
+!WTF/
+!WTF/Config.txt
+
+# Include Keybindings
+!WTF/Account
+!WTF/Account/*
+!WTF/Account/*/keybinds.txt
+
+# Include Addons Enable/Disable
+!WTF/Account/*/*
+!WTF/Account/*/*/*
+!WTF/Account/*/*/*/AddOns.txt
+
+# Include Interface Options
+!WTF/Account/*/*/*/chat-cache.txt
+!WTF/Account/*/*/*/config-cache.wtf
+!WTF/Account/*/*/*/config-cache.old
+
+# Include Addon Settings
+!WTF/Account
+!WTF/Account/*
+!WTF/Account/*/SavedVariables
+!WTF/Account/*/SavedVariables/**
+!WTF/Account/*/*
+!WTF/Account/*/*/*
+!WTF/Account/*/*/*/SavedVariables
+!WTF/Account/*/*/*/SavedVariables/**

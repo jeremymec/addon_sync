@@ -17,7 +17,8 @@ class Sync:
         # except IOError:
         #     Sync.create_lockfile(path_to_lockfile, remote_path)
 
-        service_create_result = GitService.create_service(base_path, remote_path)
+        service_create_result = GitService.create_service(
+            base_path, remote_path)
 
         git_service = service_create_result["service"]
 
