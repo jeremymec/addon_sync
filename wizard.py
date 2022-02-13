@@ -27,6 +27,7 @@ class SetupWizard:
         self.directory_textbox.insert(END, self.path_to_wow)
 
     def location_next_callback(self):
+        self.config_data["WowFolder"] = self.path_to_wow
         self.active_frame.destroy()
         self.create_settings_screen()
 
@@ -230,9 +231,9 @@ class SetupWizard:
             self.active_frame, text="Game Settings", variable=self.general_settings_var)
         general_settings_checkbox.grid(row=3, column=0, sticky=W, padx=20)
 
-        self.chat_settings_var = IntVar()
+        self.interface_settings_var = IntVar()
         interface_settings_checkbox = Checkbutton(
-            self.active_frame, text="Interface Settings", variable=self.chat_settings_var)
+            self.active_frame, text="Interface Settings", variable=self.interface_settings_var)
         interface_settings_checkbox.grid(row=1, column=1, sticky=W)
 
         self.addons_enabled_var = IntVar()

@@ -15,7 +15,7 @@ class SyncController:
 
     def init_sync(self):
         self.model.set_status(Status.INIT.value)
-        sync_create_result = Sync.create_sync(Path(self.path_to_wow), self.repo_url)
+        sync_create_result = Sync.create_sync(Path(self.path_to_wow), self.repo_url, self.objects_tracked)
         result = sync_create_result["status"]
         self.sync = sync_create_result["sync"]
 
@@ -37,6 +37,7 @@ class SyncController:
         config_data = json.load(f)
         self.path_to_wow = config_data["WowFolder"]
         self.repo_url = config_data["RepoURL"]
+        self.objects_tracked = config_data["ObjectsTracked"]
 
         actionstring = config_data["LastAction"]
         timestring = config_data["ActionTime"]

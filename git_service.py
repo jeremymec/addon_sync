@@ -1,7 +1,7 @@
 import os
 from enum import Enum, auto
 from pathlib import Path
-from shutil import copy2
+from gitignore_service import create_gitignore_including
 
 from git import (GitCommandError, InvalidGitRepositoryError, NoSuchPathError,
                  Repo)
@@ -22,7 +22,7 @@ class GitService:
         self.remote_url = remote_url
 
     @staticmethod
-    def create_service(path_to_repo, remote_url):
+    def create_service(path_to_repo, remote_url, objects_tracked):
         result = None
         repo = None
 
@@ -36,7 +36,8 @@ class GitService:
 
             # Check if the repo has a gitignore and create one if it does not
             if not os.path.exists(os.path.join(path_to_repo, ".gitignore")):
-                GitService.create_gitignore(path_to_repo)
+                print("Creating gitignore")
+                GitService.create_gitignore(path_to_repo, objects_tracked)
 
             try:
                 addons_repo.git.checkout("-ft", "origin/master")
@@ -57,10 +58,14 @@ class GitService:
         self.repo.git.checkout("--theirs", ".")
 
     @staticmethod
-    def create_gitignore(repo_path):
-        current_path = Path().absolute()
-        gitignore_file_path = os.path.join(current_path, "files", ".gitignore")
-        copy2(gitignore_file_path, repo_path)
+    def create_gitignore(repo_path, objects_tracked):
+        gitignore_string = create_gitignore_including(objects_tracked)
+        gitignore_path = Path.joinpath(repo_path, Path('.gitignore'))
+        
+        with open(gitignore_path, "w") as f:
+            f.write(gitignore_string)
+
+        f.close()
 
     def commit_local_changes(self):
         self.repo.git.add(".")

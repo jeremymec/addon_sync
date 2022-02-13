@@ -8,17 +8,10 @@ class Sync:
         self.git_service = git_service
 
     @staticmethod
-    def create_sync(base_path, remote_path):
-
-        # path_to_lockfile = os.path.join(base_path, 'sync_lock.json')
-        # try:
-        #     with open(path_to_lockfile) as f:
-        #         pass
-        # except IOError:
-        #     Sync.create_lockfile(path_to_lockfile, remote_path)
+    def create_sync(base_path, remote_path, objects_tracked):
 
         service_create_result = GitService.create_service(
-            base_path, remote_path)
+            base_path, remote_path, objects_tracked)
 
         git_service = service_create_result["service"]
 
@@ -32,14 +25,6 @@ class Sync:
 
         sync = Sync(git_service, base_path, remote_path)
         return {"sync": sync, "status": status}
-
-    # @staticmethod
-    # def create_lockfile(path, remote_path):
-    #     initial_lockfile_contents = {'Remote': remote_path}
-    #     with open(path, 'w+') as f:
-    #         f.write(json.dumps(initial_lockfile_contents))
-
-    #     f.close()
 
     def force_local_sync(self):
         self.git_service.use_local()
